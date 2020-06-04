@@ -1,5 +1,8 @@
 package ui;
 
+import client.Player;
+import entity.Chestionar;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -8,11 +11,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
 import javax.swing.border.Border;
 
-public class MainClientFrame extends JFrame {
+public class MainClientFrame extends JFrame implements Runnable {
+    String nume;
+    Chestionar chestionar;
+    PrintWriter outSocket;
+    BufferedReader in;
+    String serverAddress = "127.0.0.1";
+    int PORT = 8100;
+    Socket socket;
+    String raspuns;
+    String ales;
+    String varAles;
+
     JLabel logo;
 
     /* MENIU PRINCIPAL + DESCRIERE*/
@@ -39,13 +53,31 @@ public class MainClientFrame extends JFrame {
         setLayout(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(820, 440);
+
+
+
+        try {
+            socket = new Socket(serverAddress, PORT);
+            outSocket = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            System.err.println("No server listening... " + e);
+        }
+    }
+
+    @Override
+    public void run() {
         meniuPrincipal();
+
+
     }
 
     private void meniuPrincipal() {
         this.fundal = new JLabel(new ImageIcon("./meniuPrincipal.jpg"));
         setContentPane(this.fundal);
         revalidate();
+        repaint();
 
         this.titlu = new JLabel("FII Java");
         this.titlu.setFont(new Font("Serif", Font.BOLD, 70));
@@ -54,6 +86,7 @@ public class MainClientFrame extends JFrame {
         this.titlu.setForeground(new Color(255, 128, 0));
         add(titlu);
 
+        repaint();
         this.startJoc = new JButton("Start joc");
         this.startJoc.setFont(new Font("Serif", Font.BOLD, 30));
         this.startJoc.setBounds(225, 150, 350, 70);
@@ -62,6 +95,7 @@ public class MainClientFrame extends JFrame {
         this.startJoc.setMargin(new Insets(5, 5, 5, 5));
         add(startJoc);
 
+        repaint();
         this.despreJoc = new JButton("Despre joc");
         this.despreJoc.setFont(new Font("Serif", Font.BOLD, 30));
         this.despreJoc.setBounds(225, 230, 350, 70);
@@ -70,6 +104,7 @@ public class MainClientFrame extends JFrame {
         this.despreJoc.setMargin(new Insets(5, 5, 5, 5));
         add(despreJoc);
 
+        repaint();
         this.inchide = new JButton("Iesire");
         this.inchide.setFont(new Font("Serif", Font.BOLD, 30));
         this.inchide.setBounds(225, 310, 350, 70);
@@ -92,7 +127,11 @@ public class MainClientFrame extends JFrame {
 
 
                 try {
-                    cameraDeJoc();
+                    outSocket.println("creare " + nume);
+                    outSocket.flush();
+                    raspuns = in.readLine();
+                    String[] splits = raspuns.split("#");
+                    cameraDeJoc(splits[0], splits[1], splits[2], splits[3], splits[4], splits[5]);
                 } catch (InterruptedException | IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -111,12 +150,7 @@ public class MainClientFrame extends JFrame {
                 repaint();
 
 
-                try {
-                    Thread.sleep(50);
-                    despreJoc();
-                } catch (InterruptedException ioException) {
-                    ioException.printStackTrace();
-                }
+                despreJoc();
             }
         });
 
@@ -177,62 +211,147 @@ public class MainClientFrame extends JFrame {
         });
     }
 
-    private void cameraDeJoc() throws IOException, InterruptedException {
+    private void cameraDeJoc(String intr, String v1, String v2, String v3, String v4, String corect) throws IOException, InterruptedException {
+
         this.fundal2 = new JLabel(new ImageIcon("./cameraDeJoc.jpg"));
         setContentPane(this.fundal2);
         revalidate();
 
+        repaint();
         this.timp = new JLabel("Timp: ");
         this.timp.setFont(new Font("SansSerif", Font.BOLD, 15));
         this.timp.setBounds(30, 30, 100, 30);
         this.timp.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         add(timp);
 
+        repaint();
         this.logo = new JLabel(new ImageIcon("./Java.jpg"));
         this.logo.setBounds(240, 0, 320, 125);
         add(logo);
 
+        repaint();
         this.secunde = new JLabel("20");
         this.secunde.setFont(new Font("SansSerif", Font.BOLD, 15));
         this.secunde.setBounds(70, 30, 100, 30);
         this.secunde.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         add(secunde);
 
-        this.intrebare = new JLabel("<html><div style='text-align: center; '>Ce limbaj de programare invatam?</div></html>");
+        repaint();
+        this.intrebare = new JLabel("<html><div style='text-align: center; '>" + intr + "</div></html>");
         this.intrebare.setFont(new Font("Serif", Font.BOLD, 30));
         this.intrebare.setBounds(150, 120, 500, 80);
         this.intrebare.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         add(intrebare);
 
-        this.varianta1 = new JButton("A. C");
+        repaint();
+        this.varianta1 = new JButton("A. " + v1);
         this.varianta1.setFont(new Font("Serif", Font.BOLD, 30));
         this.varianta1.setBounds(30, 250, 350, 40);
-        this.varianta1.setBackground(new Color(230, 92, 0));
+        this.varianta1.setBackground(new Color(255, 204, 128));
         this.varianta1.setCursor(new Cursor(Cursor.HAND_CURSOR));
         this.varianta1.setMargin(new Insets(5, 5, 5, 5));
         add(varianta1);
 
-        this.varianta2 = new JButton("B. Java");
+        repaint();
+        this.varianta2 = new JButton("B. " + v2);
         this.varianta2.setFont(new Font("Serif", Font.BOLD, 30));
         this.varianta2.setBounds(420, 250, 350, 40);
-        this.varianta2.setBackground(new Color(230, 92, 0));
+        this.varianta2.setBackground(new Color(255, 204, 128));
         this.varianta2.setCursor(new Cursor(Cursor.HAND_CURSOR));
         add(varianta2);
 
-        this.varianta3 = new JButton("C. C++");
+        repaint();
+        this.varianta3 = new JButton("C. " + v3);
         this.varianta3.setFont(new Font("Serif", Font.BOLD, 30));
         this.varianta3.setBounds(30, 320, 350, 40);
-        this.varianta3.setBackground(new Color(230, 92, 0));
+        this.varianta3.setBackground(new Color(255, 204, 128));
         this.varianta3.setCursor(new Cursor(Cursor.HAND_CURSOR));
         add(varianta3);
 
-        this.varianta4 = new JButton("D. Javascript");
+        repaint();
+        this.varianta4 = new JButton("D. " + v4);
         this.varianta4.setFont(new Font("Serif", Font.BOLD, 30));
         this.varianta4.setBounds(420, 320, 350, 40);
-        this.varianta4.setBackground(new Color(230, 92, 0));
+        this.varianta4.setBackground(new Color(255, 204, 128));
         this.varianta4.setCursor(new Cursor(Cursor.HAND_CURSOR));
         add(varianta4);
 
+        varianta1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(corect.compareTo(v1) == 0)
+                    varianta1.setBackground(new Color(153, 255, 51));
+                else {
+                    varianta1.setBackground(new Color(255, 0, 0));
 
+                    if(v2.compareTo(corect) == 0)
+                        varianta2.setBackground(new Color(153, 255, 51));
+                    else if(v3.compareTo(corect) == 0)
+                        varianta3.setBackground(new Color(153, 255, 51));
+                    else if(v4.compareTo(corect) == 0)
+                        varianta4.setBackground(new Color(153, 255, 51));
+                }
+            }
+        });
+        varianta2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(corect.compareTo(v2) == 0)
+                    varianta2.setBackground(new Color(153, 255, 51));
+                else {
+                    varianta2.setBackground(new Color(255, 0, 0));
+
+                    if(v1.compareTo(corect) == 0)
+                        varianta1.setBackground(new Color(153, 255, 51));
+                    else if(v3.compareTo(corect) == 0)
+                        varianta3.setBackground(new Color(153, 255, 51));
+                    else if(v4.compareTo(corect) == 0)
+                        varianta4.setBackground(new Color(153, 255, 51));
+                }
+            }
+        });
+        varianta3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(corect.compareTo(v3) == 0)
+                    varianta3.setBackground(new Color(153, 255, 51));
+                else {
+                    varianta3.setBackground(new Color(255, 0, 0));
+
+                    if(v2.compareTo(corect) == 0)
+                        varianta2.setBackground(new Color(153, 255, 51));
+                    else if(v1.compareTo(corect) == 0)
+                        varianta1.setBackground(new Color(153, 255, 51));
+                    else if(v4.compareTo(corect) == 0)
+                        varianta4.setBackground(new Color(153, 255, 51));
+                }
+            }
+        });
+        varianta4.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(corect.compareTo(v4) == 0)
+                    varianta4.setBackground(new Color(153, 255, 51));
+                else {
+                    varianta4.setBackground(new Color(255, 0, 0));
+
+                    if(v2.compareTo(corect) == 0)
+                        varianta2.setBackground(new Color(153, 255, 51));
+                    else if(v3.compareTo(corect) == 0)
+                        varianta3.setBackground(new Color(153, 255, 51));
+                    else if(v1.compareTo(corect) == 0)
+                        varianta1.setBackground(new Color(153, 255, 51));
+                }
+            }
+        });
+
+    }
+
+    public String getNume() {
+        return nume;
+    }
+
+    public void setNume(String nume) {
+        this.nume = nume;
     }
 }

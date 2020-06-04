@@ -7,6 +7,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        new MainClientFrame().setVisible(true);
+        MainClientFrame frame = new MainClientFrame();
+        frame.setVisible(true);
+        new Thread(frame).start();
     }
 }
