@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
+    public static volatile int x = 0;
     public static final int PORT = 8100;
-    public volatile static List<Joc> games = new ArrayList<>();
+    public volatile static List<Joc> jocuri = new ArrayList<>();
 
     public Server() throws IOException {
         ServerSocket serverSocket = null ;
@@ -30,7 +31,27 @@ public class Server {
         }
     }
 
-    public static void main ( String [] args ) throws IOException {
+    public static List<Joc> getJocuri() {
+        return jocuri;
+    }
+
+    public static void setJocuri(List<Joc> games) {
+        Server.jocuri = games;
+    }
+
+    public static Joc getById(int id) {
+        for(Joc j : jocuri) {
+            if(j.getId() == id)
+                return j;
+        }
+        return null;
+    }
+
+    public static void addJoc(Joc joc){
+        jocuri.add(joc);
+    }
+
+    public static void main (String [] args ) throws IOException {
         Server server = new Server();
     }
 }

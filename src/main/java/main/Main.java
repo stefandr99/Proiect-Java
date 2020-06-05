@@ -1,13 +1,12 @@
 package main;
 
-import ui.MainClientFrame;
+import client.Player;
 
-import javax.swing.*;
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        MainClientFrame frame = new MainClientFrame();
+        Player frame = new Player();
         frame.setVisible(true);
         new Thread(frame).start();
     }
