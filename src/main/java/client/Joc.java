@@ -14,6 +14,7 @@ public class Joc {
     int maxPlayers;
     volatile List<String> players;
     volatile boolean win = false;
+    volatile String castigator;
     ChestionarRepo chestionarRepo;
     Chestionar chestionar;
 
@@ -62,8 +63,8 @@ public class Joc {
         return win;
     }
 
-    public void setWin(boolean win) {
-        this.win = win;
+    public void setWin() {
+        this.win = true;
     }
 
     public Chestionar getChestionar() {
@@ -104,5 +105,13 @@ public class Joc {
 
     public void setChestionarRepo(ChestionarRepo chestionarRepo) {
         this.chestionarRepo = chestionarRepo;
+    }
+
+    public String getCastigator() {
+        return castigator;
+    }
+
+    public void setCastigator(String castigator) {
+        this.castigator = castigator;
     }
 }

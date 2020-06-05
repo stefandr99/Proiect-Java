@@ -15,6 +15,7 @@ import java.util.List;
 public class ClientThread extends Thread {
     Joc joc;
     int rand;
+    String nume;
     private Socket socket = null;
     Chestionar chestionar;
 
@@ -31,7 +32,7 @@ public class ClientThread extends Thread {
                 String request = in.readLine();
 
                 if (request.startsWith("creare")) {
-                    String nume = request.split(" ")[1];
+                    nume = request.split(" ")[1];
                     String maxi = request.split(" ")[2];
                     int maxiJucatori = Integer.parseInt(maxi);
 
@@ -68,7 +69,7 @@ public class ClientThread extends Thread {
                     out.flush();
                 }
                 else if (request.startsWith("alatura")) {
-                    String nume = request.split(" ")[1];
+                    nume = request.split(" ")[1];
                     String id = request.split(" ")[2];
                     int idJoc = Integer.parseInt(id);
 
@@ -82,7 +83,7 @@ public class ClientThread extends Thread {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.err.println("Communication error... " + e);
         } finally {
             try {
@@ -93,7 +94,7 @@ public class ClientThread extends Thread {
         }
     }
 
-    public void joaca(BufferedReader in, PrintWriter out) throws IOException {
+    public void joaca(BufferedReader in, PrintWriter out) throws IOException, InterruptedException {
         while(true) {
             synchronized (joc.getChestionarRepo()) {
                 while (joc.getRand() != rand) {
@@ -103,11 +104,28 @@ public class ClientThread extends Thread {
                         e.printStackTrace();
                     }
                 }
+
+                Thread.sleep(200);
+                if(joc.isWin()) {
+                    out.println("pierdut " + joc.getCastigator());
+                    out.flush();
+                    joc.setRand(rand % joc.getPlayersCount() + 1);
+                    joc.getChestionarRepo().notify();
+                    break;
+                }
                 chestionar = joc.getChestionarRepo().findById(1);
                 out.println(chestionar.toString());
                 out.flush();
 
                 String raspuns = in.readLine();
+                if(raspuns.compareTo("victorie") == 0) {
+                    System.out.println(nume);
+                    joc.setCastigator(nume);
+                    joc.setWin();
+                    joc.setRand(rand % joc.getPlayersCount() + 1);
+                    joc.getChestionarRepo().notify();
+                    break;
+                }
                 //Server.x = rand;
 
                 joc.setRand(rand % joc.getPlayersCount() + 1);

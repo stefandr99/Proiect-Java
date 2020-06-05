@@ -15,7 +15,6 @@ import java.util.List;
 public class Player extends JFrame implements Runnable {
     String nume;
     int maxJucatori;
-    Chestionar chestionar;
     PrintWriter outSocket;
     BufferedReader in;
     String serverAddress = "127.0.0.1";
@@ -24,6 +23,7 @@ public class Player extends JFrame implements Runnable {
     String raspuns;
     int rand;
     boolean inJoc = false;
+    int puncte = 0;
 
     JLabel logo;
 
@@ -58,6 +58,10 @@ public class Player extends JFrame implements Runnable {
     JButton alatura;
     JLabel idCameraLabel;
     JTextField idCameraText;
+
+    /* REZULTAT */
+    JLabel mesajFinal1;
+    JLabel mesajFinal2;
 
     public Player() throws IOException, InterruptedException {
         super("FII Java");
@@ -538,8 +542,14 @@ public class Player extends JFrame implements Runnable {
     public void genereazaRunda() throws IOException, InterruptedException {
         Server.x = 0;
         raspuns = in.readLine();
-        String[] splits = raspuns.split("#");
-        cameraDeJoc(splits[0], splits[1], splits[2], splits[3], splits[4], splits[5]);
+        if(raspuns.startsWith("pierdut")) {
+            String[] splits = raspuns.split(" ");
+            rezultat(false, splits[1]);
+        }
+        else {
+            String[] splits = raspuns.split("#");
+            cameraDeJoc(splits[0], splits[1], splits[2], splits[3], splits[4], splits[5]);
+        }
     }
 
     private void cameraDeJoc(String intr, String v1, String v2, String v3, String v4, String corect) throws IOException, InterruptedException {
@@ -549,7 +559,7 @@ public class Player extends JFrame implements Runnable {
         revalidate();
 
         repaint();
-        this.timp = new JLabel("Timp: ");
+        this.timp = new JLabel("Puncte: ");
         this.timp.setFont(new Font("SansSerif", Font.BOLD, 15));
         this.timp.setBounds(30, 30, 100, 30);
         this.timp.setCursor(new Cursor(Cursor.TEXT_CURSOR));
@@ -561,9 +571,9 @@ public class Player extends JFrame implements Runnable {
         add(logo);
 
         repaint();
-        this.secunde = new JLabel("20");
+        this.secunde = new JLabel(String.valueOf(puncte));
         this.secunde.setFont(new Font("SansSerif", Font.BOLD, 15));
-        this.secunde.setBounds(70, 30, 100, 30);
+        this.secunde.setBounds(100, 30, 100, 30);
         this.secunde.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         add(secunde);
 
@@ -612,6 +622,8 @@ public class Player extends JFrame implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 if(corect.compareTo(v1) == 0) {
                     varianta1.setBackground(new Color(153, 255, 51));
+                    puncte++;
+                    secunde.setText(String.valueOf(puncte));
                 }
                 else {
                     varianta1.setBackground(new Color(255, 0, 0));
@@ -623,7 +635,14 @@ public class Player extends JFrame implements Runnable {
                     else if(v4.compareTo(corect) == 0)
                         varianta4.setBackground(new Color(153, 255, 51));
                 }
-                outSocket.println("teminat");
+                if(puncte == 5) {
+                    outSocket.println("victorie");
+                    outSocket.flush();
+
+                    rezultat(true, null);
+                }
+                else
+                    outSocket.println("teminat");
                 outSocket.flush();
                 Server.x = rand;
                 //genereazaRunda();
@@ -636,6 +655,8 @@ public class Player extends JFrame implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 if(corect.compareTo(v2) == 0) {
                     varianta2.setBackground(new Color(153, 255, 51));
+                    puncte++;
+                    secunde.setText(String.valueOf(puncte));
                 }
                 else {
                     varianta2.setBackground(new Color(255, 0, 0));
@@ -647,7 +668,13 @@ public class Player extends JFrame implements Runnable {
                     else if(v4.compareTo(corect) == 0)
                         varianta4.setBackground(new Color(153, 255, 51));
                 }
-                outSocket.println("teminat");
+                if(puncte == 5) {
+                    outSocket.println("victorie");
+                    outSocket.flush();
+                    rezultat(true, null);
+                }
+                else
+                    outSocket.println("teminat");
                 outSocket.flush();
                 Server.x = rand;
                 //genereazaRunda();
@@ -659,6 +686,8 @@ public class Player extends JFrame implements Runnable {
 
                 if(corect.compareTo(v3) == 0) {
                     varianta3.setBackground(new Color(153, 255, 51));
+                    puncte++;
+                    secunde.setText(String.valueOf(puncte));
                 }
                 else {
                     varianta3.setBackground(new Color(255, 0, 0));
@@ -670,7 +699,13 @@ public class Player extends JFrame implements Runnable {
                     else if(v4.compareTo(corect) == 0)
                         varianta4.setBackground(new Color(153, 255, 51));
                 }
-                outSocket.println("teminat");
+                if(puncte == 5) {
+                    outSocket.println("victorie");
+                    outSocket.flush();
+                    rezultat(true, null);
+                }
+                else
+                    outSocket.println("teminat");
                 outSocket.flush();
                 Server.x = rand;
                 //genereazaRunda();
@@ -682,6 +717,8 @@ public class Player extends JFrame implements Runnable {
 
                 if(corect.compareTo(v4) == 0) {
                     varianta4.setBackground(new Color(153, 255, 51));
+                    puncte++;
+                    secunde.setText(String.valueOf(puncte));
                 }
                 else {
                     varianta4.setBackground(new Color(255, 0, 0));
@@ -693,26 +730,65 @@ public class Player extends JFrame implements Runnable {
                     else if(v1.compareTo(corect) == 0)
                         varianta1.setBackground(new Color(153, 255, 51));
                 }
-                outSocket.println("teminat");
+                if(puncte == 5) {
+                    outSocket.println("victorie");
+                    outSocket.flush();
+                    rezultat(true, null);
+                }
+                else
+                    outSocket.println("teminat");
                 outSocket.flush();
                 Server.x = rand;
-                //genereazaRunda();
             }
         });
 
 
     }
 
-    /*public static void startThread() {
-        SwingWorker sw1 = new SwingWorker() {
-            @Override
-            protected Object doInBackground() throws Exception {
+    private void rezultat(boolean winner, String castigator) {
 
-                return null;
-            }
-        };
-        sw1.execute();
-    }*/
+        if(winner) {
+            this.fundal2 = new JLabel(new ImageIcon("./confetti.jpg"));
+        }
+        else this.fundal2 = new JLabel(new ImageIcon("./keep_going.jpg"));
+        setContentPane(this.fundal2);
+        revalidate();
+
+        repaint();
+        this.titlu = new JLabel("FII Java");
+        this.titlu.setFont(new Font("Serif", Font.BOLD, 70));
+        this.titlu.setBounds(280, 20, 500, 70);
+        this.titlu.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        add(titlu);
+        revalidate();
+
+        repaint();
+        if(winner) {
+            mesajFinal1 = new JLabel("Felicitari!");
+            mesajFinal2 = new JLabel("Esti castigatorul FII Java!");
+        }
+        else {
+            mesajFinal1 = new JLabel("Ne pare rau!");
+            mesajFinal2 = new JLabel("<html>Din pacate castigatorul este <br>" + castigator + "</html>");
+        }
+        this.mesajFinal1.setFont(new Font("Serif", Font.BOLD, 70));
+        this.mesajFinal1.setBounds(250, 150, 800, 70);
+        if(!winner) this.mesajFinal1.setBounds(220, 150, 800, 70);
+        this.mesajFinal1.setForeground(new Color(255, 128, 0));
+        this.mesajFinal1.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        add(mesajFinal1);
+        repaint();
+        revalidate();
+        this.mesajFinal2.setFont(new Font("Serif", Font.BOLD, 60));
+        this.mesajFinal2.setBounds(70, 250, 800, 70);
+        if(!winner) this.mesajFinal2.setBounds(60, 250, 800, 150);
+        this.mesajFinal2.setForeground(new Color(255, 128, 0));
+        this.mesajFinal2.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        add(mesajFinal2);
+        repaint();
+        revalidate();
+    }
+
 
     public String getNume() {
         return nume;
